@@ -15,24 +15,25 @@ import static org.lwjgl.system.MemoryUtil.*;
 public class Application {
     // The window handle
     private long window;
+
     // App settings
     private final int width;
     private final int height;
     private final String title;
     private float[] bgColor;
 
-    Application(int width, int height, String title) {
-        this.width = width;
-        this.height = height;
-        this.title = title;
-        this.bgColor = new float[]{
-                1.0f, 0.0f, 0.0f, 0.0f
-        };
+    Application() {
+        this.width = 800;
+        this.height = 800;
+        this.title = "Mandelbrot Set";
+        this.bgColor = MandelbrotMath.convertColor(new float[]{
+                93.0f, 95.0f, 97.0f, 0.0f
+        });
     }
 
     public void run() {
-        init();
-        loop();
+        this.init();
+        this.loop();
 
         // Free the window callbacks and destroy the window
         glfwFreeCallbacks(this.window);
@@ -49,7 +50,7 @@ public class Application {
         GLFWErrorCallback.createPrint(System.err).set();
 
         // Initialize GLFW. Most GLFW functions will not work before doing this.
-        if ( !glfwInit() )
+        if (!glfwInit())
             throw new IllegalStateException("Unable to initialize GLFW");
 
         // Configure GLFW
@@ -61,12 +62,6 @@ public class Application {
         this.window = glfwCreateWindow(this.width, this.height, this.title, NULL, NULL);
         if (this.window == NULL)
             throw new RuntimeException("Failed to create the GLFW window");
-
-        // Setup a key callback. It will be called every time a key is pressed, repeated or released.
-        glfwSetKeyCallback(this.window, (window, key, scancode, action, mods) -> {
-            if (key == GLFW_KEY_ESCAPE && action == GLFW_RELEASE)
-                glfwSetWindowShouldClose(window, true); // We will detect this in the rendering loop
-        });
 
         // Get the thread stack and push a new frame
         try (MemoryStack stack = stackPush()) {
@@ -109,7 +104,7 @@ public class Application {
 
         // Run the rendering loop until the user has attempted to close
         // the window or has pressed the ESCAPE key.
-        while ( !glfwWindowShouldClose(this.window) ) {
+        while (!glfwWindowShouldClose(this.window)) {
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clear the framebuffer
 
             glfwSwapBuffers(this.window); // swap the color buffers
